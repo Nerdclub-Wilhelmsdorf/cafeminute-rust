@@ -1,5 +1,4 @@
-use rocket::form::Form;
-
+use rocket::{form::Form, Shutdown};
 mod products;
 mod structs;
 mod db;
@@ -7,16 +6,28 @@ mod open_close;
 mod usercount;
 mod news;
 use map_macro::hash_map;
+
+use crate::structs::SetOpen;
 #[macro_use] extern crate rocket;
 #[get("/")]
 fn root() -> &'static str {
    return "Root Route!"
 }
 static server_pswd: &str = "123";
-
+#[post("/shutdown", data = "<form>")]
+fn shutdown(form: Form<SetOpen>,shutdown: Shutdown) -> &'static str {
+   if(form.pswd != server_pswd) {
+       return "Wrong password";
+   }
+   shutdown.notify();
+   return "Shutting down server";
+}
 #[launch]
 fn rocket() -> _ {
-   rocket::build().mount("/", routes![root])
+   let figment = rocket::Config::figment()
+   .merge(("address", "0.0.0.0"))
+   .merge(("port", 1312));
+   rocket::custom(figment).mount("/", routes![root])
                    .mount("/", routes![open_close::setopen])
                     .mount("/", routes![open_close::isopen])
                     .mount("/", routes![usercount::getcustomers])
@@ -41,6 +52,7 @@ fn rocket() -> _ {
                     .mount("/", routes![news::removenews])
                     .mount("/", routes![news::addparticipant])
                     .mount("/", routes![news::removeparticipant])
+                    .mount("/", routes![shutdown])
 
 
 }
