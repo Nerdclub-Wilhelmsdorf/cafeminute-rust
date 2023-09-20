@@ -5,7 +5,7 @@ mod db;
 mod open_close;
 mod usercount;
 mod news;
-use map_macro::hash_map;
+
 
 use crate::structs::SetOpen;
 #[macro_use] extern crate rocket;
@@ -13,10 +13,10 @@ use crate::structs::SetOpen;
 fn root() -> &'static str {
    return "Root Route!"
 }
-static server_pswd: &str = "123";
+static SERVER_PSWD: &str = "123";
 #[post("/shutdown", data = "<form>")]
 fn shutdown(form: Form<SetOpen>,shutdown: Shutdown) -> &'static str {
-   if(form.pswd != server_pswd) {
+   if form.pswd != SERVER_PSWD {
        return "Wrong password";
    }
    shutdown.notify();

@@ -1,5 +1,5 @@
 use rocket::form::Form;
-use crate::{structs::SetOpen, structs::Schedule, server_pswd, db};
+use crate::{structs::SetOpen, structs::Schedule, SERVER_PSWD, db};
 use std::sync::Mutex;
 use map_macro::hash_map;
 static OPEN: Mutex<bool> = Mutex::new(false);
@@ -9,7 +9,7 @@ static OPEN: Mutex<bool> = Mutex::new(false);
 #[post("/setopen", data = "<form>")]
 pub fn setopen(form: Form<SetOpen>) -> String {
     let pswd = form.into_inner().pswd;
-    if server_pswd == pswd {
+    if SERVER_PSWD == pswd {
         let mut open = OPEN.lock().unwrap();
         *open = !*open;
     return format!("{}", "success");
@@ -37,14 +37,14 @@ pub fn getschedule() -> String {
 #[post("/addschedule", data = "<form>")]
 pub fn addschedule(form: Form<Schedule>) -> String {
     let pswd = form.clone().pswd;
-    if server_pswd == pswd {
+    if SERVER_PSWD == pswd {
         let mon = form.clone().mon;
         let tue = form.clone().tue;
         let wed = form.clone().wed;
         let thu = form.clone().thu;
         let fri = form.clone().fri;
-        let mut schedule = db::DB{dir: String::from("schedule")};
-        let mut map = hash_map!{
+        let schedule = db::DB{dir: String::from("schedule")};
+        let map = hash_map!{
             "mon" => mon.as_str(),
             "tue" => tue.as_str(),
             "wed" => wed.as_str(),

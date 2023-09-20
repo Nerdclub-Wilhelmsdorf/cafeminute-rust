@@ -2,7 +2,7 @@ use std::sync::Mutex;
 
 use rocket::form::Form;
 
-use crate::{structs, server_pswd};
+use crate::{structs, SERVER_PSWD};
 
 
 static USERS: Mutex<i8> = Mutex::new(1);
@@ -19,7 +19,7 @@ pub fn setcustomers(form: Form<structs::SetCustomers>) -> String {
     if &count > &3 {
         return format!("{}", "forbidden");
     }
-    if pswd == server_pswd {
+    if pswd == SERVER_PSWD {
         let mut users = USERS.lock().unwrap();
         *users = count;
         return format!("{}", "success");

@@ -1,14 +1,14 @@
-use std::f32::consts::E;
+
 
 use map_macro::hash_map;
 use rocket::{form::Form};
-use crate::{structs::{AddProduct, GetProducts, ChangeProduct, RemoveProduct}, server_pswd, db};
+use crate::{structs::{AddProduct, GetProducts, ChangeProduct, RemoveProduct}, SERVER_PSWD, db};
 use random_string::generate;
-const chars: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 #[post("/addproduct", data = "<form>")]
 pub fn addproduct(form: Form<AddProduct>) -> String {
     let pswd = form.clone().pswd;
-    if pswd == server_pswd {
+    if pswd == SERVER_PSWD {
         let db: db::DB = db::DB{dir: String::from("products")};
         let title = form.clone().title;
         let allergenic = form.clone().allergenic;
@@ -34,7 +34,7 @@ pub fn addproduct(form: Form<AddProduct>) -> String {
     return "forbidden".to_string();
     }
 pub fn create_product_id() -> String {
-    let id: String = generate(5, chars);
+    let id: String = generate(5, CHARS);
     let mut id_json = "".to_owned();
     id_json.push_str(id.as_str());
     id_json.push_str(".json");
@@ -84,9 +84,9 @@ pub fn getproducts() -> String {
 #[get("/getproduct", data = "<form>")]
 pub fn getproduct(form: Form<GetProducts>) -> String {
     let db = db::DB{dir: String::from("products")};
-    let mut jsonString = form.clone().id;
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = form.clone().id;
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     }
     let document = form.clone().id;
@@ -113,12 +113,12 @@ pub fn changeproduct(form: Form<ChangeProduct>) -> String {
     let db = db::DB{dir: String::from("products")};
     let pswd = form.clone().pswd;
     let id = form.clone().id;
-    if pswd != server_pswd {
+    if pswd != SERVER_PSWD {
         return "forbidden".to_string();
     };
-    let mut jsonString = id.clone();
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = id.clone();
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     };
     let key = form.clone().key;
@@ -126,8 +126,8 @@ pub fn changeproduct(form: Form<ChangeProduct>) -> String {
     let mut product = db.read_document(id.to_owned());
     print!("{:?}", product["description"]);
     let mut contains = false;
-    for (keyLoop, valueLoop) in product.clone() {
-        if keyLoop == key {
+    for (key_loop, _value_loop) in product.clone() {
+        if key_loop == key {
             contains = true;
         }
     }
@@ -145,14 +145,14 @@ pub fn removeproduct(form: Form<RemoveProduct>) -> String {
     let db = db::DB{dir: String::from("products")};
     let pswd = form.clone().pswd;
     let id = form.clone().id;
-    if pswd != server_pswd {
+    if pswd != SERVER_PSWD {
         return "forbidden".to_string();
     };
-    let mut jsonString = id.clone();
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = id.clone();
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     };
-    db.remove_key(jsonString);
+    db.remove_key(json_string);
     return "success".to_string();
 }

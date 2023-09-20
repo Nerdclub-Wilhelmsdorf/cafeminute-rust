@@ -9,12 +9,12 @@ use rocket::form::Form;
 extern crate strip_markdown;
 use strip_markdown::*;
 
-use crate::{structs::{AddNews, GetProducts, ChangeProduct, RemoveProduct}, server_pswd, db, products::create_product_id};
+use crate::{structs::{AddNews, GetProducts, ChangeProduct, RemoveProduct}, SERVER_PSWD, db, products::create_product_id};
 
  #[post("/addnews", data = "<form>")]
  pub fn addnews(form: Form<AddNews>) -> String {
     let pswd = form.clone().pswd;
-    if pswd == server_pswd {
+    if pswd == SERVER_PSWD {
         let db: db::DB = db::DB{dir: String::from("news")};
         let heading = form.clone().heading;
         let content = form.clone().content;
@@ -31,7 +31,7 @@ use crate::{structs::{AddNews, GetProducts, ChangeProduct, RemoveProduct}, serve
         if event == "true" {
             map.insert("participants", "0");
         };
-        let date = getDate();
+        let date = get_date();
         map.insert("date", date.as_str());
         db.add_document(create_product_id(), map);
         return "success".to_string();
@@ -49,9 +49,9 @@ pub fn getnewsids() -> String {
 
 pub fn getnews(form: Form<GetProducts>) -> String {
     let db = db::DB{dir: String::from("news")};
-        let mut jsonString = form.clone().id;
-        jsonString.push_str(".json");
-        if !db.has_key(&jsonString) {
+        let mut json_string = form.clone().id;
+        json_string.push_str(".json");
+        if !db.has_key(&json_string) {
             return "invalid ID".to_string();
         }
         let document = form.clone().id;
@@ -97,7 +97,7 @@ pub fn listnews() -> String {
     }
     return vec.join("\n");
 }
-fn getDate() -> String{
+fn get_date() -> String{
    let now = chrono::offset::Local::now();
    let date = now.format("%Y-%m-%d").to_string();
    return date;
@@ -107,20 +107,20 @@ pub fn changenews(form: Form<ChangeProduct>) -> String {
     let db = db::DB{dir: String::from("news")};
     let pswd = form.clone().pswd;
     let id = form.clone().id;
-    if pswd != server_pswd {
+    if pswd != SERVER_PSWD {
         return "forbidden".to_string();
     };
-    let mut jsonString = id.clone();
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = id.clone();
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     };
     let key = form.clone().key;
     let value = form.clone().value;
     let mut product = db.read_document(id.to_owned());
     let mut contains = false;
-    for (keyLoop, valueLoop) in product.clone() {
-        if keyLoop == key {
+    for (key_loop, _value_loop) in product.clone() {
+        if key_loop == key {
             contains = true;
         }
     }
@@ -138,24 +138,24 @@ pub fn removenews(form: Form<RemoveProduct>) -> String {
     let db = db::DB{dir: String::from("news")};
     let pswd = form.clone().pswd;
     let id = form.clone().id;
-    if pswd != server_pswd {
+    if pswd != SERVER_PSWD {
         return "forbidden".to_string();
     };
-    let mut jsonString = id.clone();
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = id.clone();
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     };
-    db.remove_key(jsonString);
+    db.remove_key(json_string);
     return "success".to_string();
 }
 #[patch("/addparticipant", data = "<form>")]
 pub fn addparticipant(form: Form<RemoveProduct>) -> String {
     let db = db::DB{dir: String::from("news")};
     let id = form.clone().id;
-    let mut jsonString = id.clone();
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = id.clone();
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     };
     let mut product = db.read_document(id.to_owned());
@@ -175,9 +175,9 @@ pub fn addparticipant(form: Form<RemoveProduct>) -> String {
 pub fn removeparticipant(form: Form<RemoveProduct>) -> String {
     let db = db::DB{dir: String::from("news")};
     let id = form.clone().id;
-    let mut jsonString = id.clone();
-    jsonString.push_str(".json");
-    if !db.has_key(&jsonString) {
+    let mut json_string = id.clone();
+    json_string.push_str(".json");
+    if !db.has_key(&json_string) {
         return "invalid ID".to_string();
     };
     let mut product = db.read_document(id.to_owned());

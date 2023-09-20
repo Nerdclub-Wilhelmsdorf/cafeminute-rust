@@ -1,12 +1,12 @@
-use std::{fs::{File, self}, io::Write, collections::HashMap, hash::{self, Hash}};
+use std::{fs::{File, self}, io::Write, collections::HashMap};
 use substring::Substring;
 use serde_json;
 
-use crate::products;
+
 pub struct DB {
     pub dir: String,
 }
-
+#[allow(dead_code)]
 impl DB {
     fn mkdir(&self) {
         if !Self::hasdir(&self) {
